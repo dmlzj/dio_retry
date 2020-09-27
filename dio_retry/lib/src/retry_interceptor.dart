@@ -9,8 +9,9 @@ class RetryInterceptor extends Interceptor {
   final Dio dio;
   final Logger logger;
   final RetryOptions options;
+  final VoidCallback retryCallback;
 
-  RetryInterceptor({@required this.dio, this.logger, RetryOptions options})
+  RetryInterceptor({@required this.dio, this.logger, RetryOptions options, this.retryCallback})
       : this.options = options ?? const RetryOptions();
 
   @override
@@ -28,6 +29,7 @@ class RetryInterceptor extends Interceptor {
       err.request.extra = err.request.extra..addAll(extra.toExtra());
 
       try {
+        retryCallback();
         logger?.warning(
             "[${err.request.uri}] An error occured during request, trying a again (remaining tries: ${extra.retries}, error: ${err.error})");
         // We retry with the updated options
